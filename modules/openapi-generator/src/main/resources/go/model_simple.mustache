@@ -168,6 +168,16 @@ func (o *{{classname}}) Set{{name}}(v {{vendorExtensions.x-go-base-type}}) {
 {{/isNullable}}
 }
 
+{{^isReadOnly}}
+{{#defaultValue}}
+func (o *{{classname}}) GetDefault{{baseName}}() interface{}  {
+	var {{baseName}} {{{dataType}}} = {{{defaultValue}}}
+	o.{{name}} = {{baseName}}
+	return {{baseName}}
+}
+{{/defaultValue}}
+{{/isReadOnly}}
+
 {{/required}}
 {{^required}}
 // Get{{name}} returns the {{name}} field value if set, zero value otherwise{{#isNullable}} (both if not set or set to explicit null){{/isNullable}}.
@@ -318,7 +328,16 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	{{! if argument is not nullable, don't set it if it is nil}}
 	{{^isNullable}}
 	{{#required}}
+	{{^isReadOnly}}
+	{{#defaultValue}}
+	if value, exists := toSerialize["{{{baseName}}}"]; !exists || value == "" {
+		toSerialize["{{{baseName}}}"] = o.GetDefault{{baseName}}()
+	}
+	{{/defaultValue}}
+	{{/isReadOnly}}
+	{{^defaultValue}}
 	toSerialize["{{{baseName}}}"] = o.{{name}}
+	{{/defaultValue}}
 	{{/required}}
 	{{^required}}
 	if !IsNil(o.{{name}}) {
@@ -355,6 +374,15 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 		"{{baseName}}",
 {{/requiredVars}}
 	}
+	defaultValueFuncMap := map[string]func() interface{} {
+{{#requiredVars}}
+{{^isReadOnly}}
+{{#defaultValue}}
+		"{{baseName}}": o.GetDefault{{baseName}},
+{{/defaultValue}}
+{{/isReadOnly}}
+{{/requiredVars}}
+	}
 
 	allProperties := make(map[string]interface{})
 
@@ -365,6 +393,9 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	}
 
 	for _, requiredProperty := range(requiredProperties) {
+		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
+        	allProperties[requiredProperty] = defaultValueFuncMap[requiredProperty]()
+		}
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
