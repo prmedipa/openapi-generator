@@ -236,7 +236,7 @@ func (o *{{classname}}) Get{{name}}Ok() ({{^isArray}}{{^isFreeFormObject}}*{{/is
 
 // Has{{name}} returns a boolean if a field has been set.
 func (o *{{classname}}) Has{{name}}() bool {
-	if o != nil && {{^isNullable}}!IsNil(o.{{name}}){{/isNullable}}{{#isNullable}}{{#vendorExtensions.x-golang-is-container}}IsNil(o.{{name}}){{/vendorExtensions.x-golang-is-container}}{{^vendorExtensions.x-golang-is-container}}o.{{name}}.IsSet(){{/vendorExtensions.x-golang-is-container}}{{/isNullable}} {
+	if o != nil && {{^isNullable}}!IsNil(o.{{name}}){{/isNullable}}{{#isNullable}}{{#vendorExtensions.x-golang-is-container}}!IsNil(o.{{name}}){{/vendorExtensions.x-golang-is-container}}{{^vendorExtensions.x-golang-is-container}}o.{{name}}.IsSet(){{/vendorExtensions.x-golang-is-container}}{{/isNullable}} {
 		return true
 	}
 
@@ -332,14 +332,12 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	{{#required}}
 	{{^isReadOnly}}
 	{{#defaultValue}}
-	if value, exists := toSerialize["{{{baseName}}}"]; !exists || value == "" {
+	if value, exists := toSerialize["{{{baseName}}}"]; !exists || value == ""{
 		toSerialize["{{{baseName}}}"] = o.GetDefault{{baseName}}()
 	}
 	{{/defaultValue}}
 	{{/isReadOnly}}
-	{{^defaultValue}}
 	toSerialize["{{{baseName}}}"] = o.{{name}}
-	{{/defaultValue}}
 	{{/required}}
 	{{^required}}
 	if !IsNil(o.{{name}}) {
@@ -389,7 +387,7 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	allProperties := make(map[string]interface{})
 	var defaultValueApplied bool
 	err = json.Unmarshal(data, &allProperties)
-
+	file := "{{classname}}"
 	if err != nil {
 		return err;
 	}
@@ -400,8 +398,8 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 				defaultValueApplied = true
 			}
 		}
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
+			return fmt.Errorf("no value given for required property %v\n %v\n %v", requiredProperty, allProperties, file)
 		}
 	}
 	if defaultValueApplied{
