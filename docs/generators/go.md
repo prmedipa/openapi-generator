@@ -33,6 +33,7 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |withAWSV4Signature|whether to include AWS v4 signature support| |false|
 |withGoMod|Generate go.mod and go.sum| |true|
 |withXml|whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)| |false|
+|initRequiredVars|If set to true then the required variables are included as positional arguments in __init__ and _from_openapi_data methods. Note: this can break some composition use cases. To learn more read PR #8802.| |false|
 
 ## IMPORT MAPPING
 

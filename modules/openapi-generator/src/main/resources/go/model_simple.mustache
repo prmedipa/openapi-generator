@@ -172,11 +172,13 @@ func (o *{{classname}}) Set{{name}}(v {{vendorExtensions.x-go-base-type}}) {
 
 {{^isReadOnly}}
 {{#defaultValue}}
+{{#initRequiredVars}}
 func (o *{{classname}}) GetDefault{{baseName}}() interface{}  {
 	var {{baseName}} {{{dataType}}} = {{{defaultValue}}}
 	o.{{name}} = {{baseName}}
 	return {{baseName}}
 }
+{{/initRequiredVars}}
 {{/defaultValue}}
 {{/isReadOnly}}
 
@@ -332,9 +334,11 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	{{#required}}
 	{{^isReadOnly}}
 	{{#defaultValue}}
+	{{#initRequiredVars}}
 	if value, exists := toSerialize["{{{baseName}}}"]; !exists || value == ""{
 		toSerialize["{{{baseName}}}"] = o.GetDefault{{baseName}}()
 	}
+	{{/initRequiredVars}}
 	{{/defaultValue}}
 	{{/isReadOnly}}
 	toSerialize["{{{baseName}}}"] = o.{{name}}
@@ -378,7 +382,9 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 {{#requiredVars}}
 {{^isReadOnly}}
 {{#defaultValue}}
+{{#initRequiredVars}}
 		"{{baseName}}": o.GetDefault{{baseName}},
+{{/initRequiredVars}}
 {{/defaultValue}}
 {{/isReadOnly}}
 {{/requiredVars}}
@@ -391,7 +397,7 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	if err != nil {
 		return err;
 	}
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range(requiredProperties){
 		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
 			if _, ok := defaultValueFuncMap[requiredProperty]; ok {
 				allProperties[requiredProperty] = defaultValueFuncMap[requiredProperty]()
@@ -551,6 +557,5 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	return json.Unmarshal(data, &o.Items)
 }
-
 {{/isArray}}
 {{>nullable_model}}
