@@ -393,7 +393,6 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	allProperties := make(map[string]interface{})
 	var defaultValueApplied bool
 	err = json.Unmarshal(data, &allProperties)
-	file := "{{classname}}"
 	if err != nil {
 		return err;
 	}
@@ -405,7 +404,7 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 			}
 		}
 		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
-			return fmt.Errorf("no value given for required property %v\n %v\n %v", requiredProperty, allProperties, file)
+			return fmt.Errorf("no value given for required property %v\n %v", requiredProperty, allProperties)
 		}
 	}
 	if defaultValueApplied{
