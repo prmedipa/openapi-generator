@@ -335,7 +335,7 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	{{^isReadOnly}}
 	{{#defaultValue}}
 	{{#initRequiredVars}}
-	if value, exists := toSerialize["{{{baseName}}}"]; !exists || value == ""{
+	if _, exists := toSerialize["{{{baseName}}}"]; !exists {
 		toSerialize["{{{baseName}}}"] = o.GetDefault{{baseName}}()
 	}
 	{{/initRequiredVars}}
