@@ -360,7 +360,6 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-{{#vendorExtensions.x-go-generate-unmarshal-json}}
 {{#isAdditionalPropertiesTrue}}
 func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 {{/isAdditionalPropertiesTrue}}
@@ -558,5 +557,4 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	return json.Unmarshal(data, &o.Items)
 }
 {{/isArray}}
-{{/vendorExtensions.x-go-generate-unmarshal-json}}
 {{>nullable_model}}
