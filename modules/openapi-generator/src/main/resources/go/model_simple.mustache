@@ -4,11 +4,9 @@ var _ MappedNullable = &{{classname}}{}
 // {{classname}} {{{description}}}{{^description}}struct for {{{classname}}}{{/description}}
 type {{classname}} struct {
 {{#parentModel.name}}
-{{^isMap}}
 {{^isArray}}
 	{{{parentModel.classname}}}
 {{/isArray}}
-{{/isMap}}
 {{#isArray}}
 	Items {{{parentModel.classname}}}
 {{/isArray}}
@@ -360,6 +358,7 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
+
 {{#isAdditionalPropertiesTrue}}
 func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 {{/isAdditionalPropertiesTrue}}
@@ -404,7 +403,7 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 			}
 		}
 		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
-			return fmt.Errorf("no value given for required property %v\n %v", requiredProperty, allProperties)
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
 	}
 	if defaultValueApplied{
@@ -556,5 +555,6 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 	return json.Unmarshal(data, &o.Items)
 }
+
 {{/isArray}}
 {{>nullable_model}}
