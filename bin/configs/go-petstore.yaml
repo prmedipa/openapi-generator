@@ -16,6 +16,7 @@ additionalProperties:
   disallowAdditionalPropertiesIfNotPresent: false
   generateInterfaces: true
   initRequiredVars: false
+  
 enumNameMappings:
   delivered: SHIPPED
 
