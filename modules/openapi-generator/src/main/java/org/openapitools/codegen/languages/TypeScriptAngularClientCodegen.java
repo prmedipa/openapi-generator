@@ -75,8 +75,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String STRING_ENUMS = "stringEnums";
     public static final String STRING_ENUMS_DESC = "Generate string enums instead of objects for enum values.";
     public static final String QUERY_PARAM_OBJECT_FORMAT = "queryParamObjectFormat";
+    public static final String USE_SQUARE_BRACKETS_IN_ARRAY_NAMES = "useSquareBracketsInArrayNames";
 
-    protected String ngVersion = "17.0.0";
+    protected String ngVersion = "18.0.0";
     @Getter @Setter
     protected String npmRepository = null;
     @Setter(AccessLevel.PRIVATE) private boolean useSingleRequestParameter = false;
@@ -142,6 +143,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(new CliOption(FILE_NAMING, "Naming convention for the output files: 'camelCase', 'kebab-case'.").defaultValue(this.fileNaming));
         this.cliOptions.add(new CliOption(STRING_ENUMS, STRING_ENUMS_DESC).defaultValue(String.valueOf(this.stringEnums)));
         this.cliOptions.add(new CliOption(QUERY_PARAM_OBJECT_FORMAT, "The format for query param objects: 'dot', 'json', 'key'.").defaultValue(this.queryParamObjectFormat.name()));
+        this.cliOptions.add(CliOption.newBoolean(USE_SQUARE_BRACKETS_IN_ARRAY_NAMES, "Setting this property to true will add brackets to array attribute names, e.g. my_values[].", false));
     }
 
     @Override
@@ -157,7 +159,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String getHelp() {
-        return "Generates a TypeScript Angular (9.x - 17.x) client library.";
+        return "Generates a TypeScript Angular (9.x - 18.x) client library.";
     }
 
     @Override
@@ -292,7 +294,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
         // Set the typescript version compatible to the Angular version
         // based on https://angular.io/guide/versions#actively-supported-versions
-        if (ngVersion.atLeast("17.0.0")) {
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("tsVersion", ">=5.4.0 <5.5.0");
+        } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("tsVersion", ">=4.9.3 <5.3.0");
         } else if (ngVersion.atLeast("16.1.0")) {
             additionalProperties.put("tsVersion", ">=4.9.3 <5.2.0");
@@ -317,7 +321,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         }
 
         // Set the rxJS version compatible to the Angular version
-        if (ngVersion.atLeast("17.0.0")) {
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("rxjsVersion", "7.4.0");
+        } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("rxjsVersion", "7.4.0");
         } else if (ngVersion.atLeast("16.0.0")) {
             additionalProperties.put("rxjsVersion", "7.4.0");
@@ -336,7 +342,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
 
         // Specific ng-packagr configuration
-        if (ngVersion.atLeast("17.0.0")) {
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("ngPackagrVersion", "18.0.0");
+            // tsTickle is not required and there is no available version compatible with
+            // versions of TypeScript compatible with Angular 18.
+        } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("ngPackagrVersion", "17.0.3");
             // tsTickle is not required and there is no available version compatible with
             // versions of TypeScript compatible with Angular 17.
@@ -369,7 +379,9 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         }
 
         // set zone.js version
-        if (ngVersion.atLeast("17.0.0")) {
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("zonejsVersion", "0.14.7");
+        } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("zonejsVersion", "0.14.0");
         } else if (ngVersion.atLeast("16.0.0")) {
             additionalProperties.put("zonejsVersion", "0.13.0");

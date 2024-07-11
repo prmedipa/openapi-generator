@@ -15,12 +15,10 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.core.models.ParseOptions;
-import org.openapitools.codegen.MockDefaultGenerator.WrittenTemplateBasedFile;
 import org.openapitools.codegen.java.assertions.JavaFileAssert;
 import org.openapitools.codegen.model.ModelMap;
 import org.openapitools.codegen.model.ModelsMap;
 import org.openapitools.codegen.utils.ModelUtils;
-import org.testng.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,30 +93,12 @@ public class TestUtils {
         return openAPI;
     }
 
-    /**
-     * Extract file from {@link MockDefaultGenerator}
-     *
-     * @param generator Generator
-     * @param root root path
-     * @param filename filename under root
-     *
-     * @return a {@link WrittenTemplateBasedFile}
-     * @deprecated Since 5.0. Please avoid this method and usage of {@link MockDefaultGenerator}, prefer {@link DefaultGenerator#DefaultGenerator(Boolean)} with dryRun=true.
-     */
-    @Deprecated
-    public static WrittenTemplateBasedFile getTemplateBasedFile(MockDefaultGenerator generator, File root, String filename) {
-        String defaultApiFilename = new File(root, filename).getAbsolutePath().replace("\\", "/");
-        Optional<WrittenTemplateBasedFile> optional = generator.getTemplateBasedFiles().stream().filter(f -> defaultApiFilename.equals(f.getOutputFilename())).findFirst();
-        Assert.assertTrue(optional.isPresent());
-        return optional.get();
-    }
-
     public static void ensureContainsFile(List<File> generatedFiles, File root, String filename) {
         Path path = root.toPath().resolve(filename);
         assertTrue(generatedFiles.contains(path.toFile()), "File '" + path.toAbsolutePath() + "' was not found in the list of generated files");
     }
 
-    public static void ensureDoesNotContainsFile(List<File> generatedFiles, File root, String filename) {
+    public static void ensureDoesNotContainFile(List<File> generatedFiles, File root, String filename) {
         Path path = root.toPath().resolve(filename);
         assertFalse(generatedFiles.contains(path.toFile()), "File '" + path.toAbsolutePath() + "' was found in the list of generated files");
     }
@@ -237,7 +217,7 @@ public class TestUtils {
                     .containsWithName("javax.persistence.Entity")
                     .containsWithNameAndAttributes("javax.persistence.Table", ImmutableMap.of("name", "\"employees\""))
                 .toType()
-                .hasProperty("assignments")
+                .assertProperty("assignments")
                     .assertPropertyAnnotations()
                     .containsWithNameAndAttributes("javax.persistence.OneToMany", ImmutableMap.of("mappedBy", "\"employee\""))
                     .toProperty()
@@ -247,17 +227,17 @@ public class TestUtils {
                 .assertTypeAnnotations()
                     .containsWithName("javax.persistence.MappedSuperclass")
                 .toType()
-                .hasProperty("id")
+                .assertProperty("id")
                     .assertPropertyAnnotations()
                     .containsWithName("javax.persistence.Id")
                     .toProperty()
                 .toType()
-                .hasProperty("email")
+                .assertProperty("email")
                     .assertPropertyAnnotations()
                     .containsWithName("org.hibernate.annotations.Formula")
                     .toProperty()
                 .toType()
-                .hasProperty("hasAcceptedTerms")
+                .assertProperty("hasAcceptedTerms")
                     .assertPropertyAnnotations()
                     .containsWithName("javax.persistence.Transient")
                     .toProperty()
@@ -268,13 +248,13 @@ public class TestUtils {
                     .containsWithName("javax.persistence.Entity")
                     .containsWithNameAndAttributes("javax.persistence.Table", ImmutableMap.of("name", "\"survey_groups\""))
                 .toType()
-                .hasProperty("assignments")
+                .assertProperty("assignments")
                     .assertPropertyAnnotations()
                     .containsWithName("javax.persistence.OneToMany")
                     .containsWithNameAndAttributes("javax.persistence.JoinColumn", ImmutableMap.of("name", "\"survey_group_id\""))
                     .toProperty()
                 .toType()
-                .hasProperty("disabled")
+                .assertProperty("disabled")
                     .assertPropertyAnnotations()
                     .containsWithNameAndAttributes("javax.persistence.Column", ImmutableMap.of("nullable", "false"))
                     .toProperty()
@@ -285,7 +265,7 @@ public class TestUtils {
                     .containsWithName("javax.persistence.MappedSuperclass")
                     .containsWithName("javax.persistence.EntityListeners")
                 .toType()
-                .hasProperty("id")
+                .assertProperty("id")
                     .assertPropertyAnnotations()
                     .containsWithName("javax.persistence.Id")
                     .containsWithNameAndAttributes("javax.persistence.GeneratedValue", ImmutableMap.of("generator", "\"UUID\""))
@@ -293,39 +273,39 @@ public class TestUtils {
                     .containsWithNameAndAttributes("javax.persistence.Column", ImmutableMap.of("name", "\"id\"","updatable", "false","nullable", "false"))
                     .toProperty()
                 .toType()
-                .hasProperty("createdDate")
+                .assertProperty("createdDate")
                     .assertPropertyAnnotations()
                     .containsWithName("org.springframework.data.annotation.CreatedDate")
                     .toProperty()
                 .toType()
-                .hasProperty("createdBy")
+                .assertProperty("createdBy")
                     .assertPropertyAnnotations()
                     .containsWithName("org.springframework.data.annotation.CreatedBy")
                     .toProperty()
                 .toType()
-                .hasProperty("modifiedDate")
+                .assertProperty("modifiedDate")
                     .assertPropertyAnnotations()
                     .containsWithName("org.springframework.data.annotation.LastModifiedDate")
                     .toProperty()
                 .toType()
-                .hasProperty("modifiedBy")
+                .assertProperty("modifiedBy")
                     .assertPropertyAnnotations()
                     .containsWithName("org.springframework.data.annotation.LastModifiedBy")
                     .toProperty()
                 .toType()
-                .hasProperty("opportunityId")
+                .assertProperty("opportunityId")
                     .assertPropertyAnnotations()
                     .containsWithNameAndAttributes("javax.persistence.Column", ImmutableMap.of("unique", "true"))
                     .toProperty()
                 .toType()
-                .hasProperty("submissionStatus")
+                .assertProperty("submissionStatus")
                     .assertPropertyAnnotations()
                     .containsWithName("javax.persistence.Transient")
                     .toProperty()
                 .toType();
 
         JavaFileAssert.assertThat(java.nio.file.Paths.get(baseOutputPath + "/CompanyDto.java"))
-            .hasProperty("priceCategory")
+            .assertProperty("priceCategory")
                 .assertPropertyAnnotations()
                 .containsWithNameAndAttributes("IgnoreForRoles", ImmutableMap.of("value", "\"MEDIA_ADMIN\""));
     }
@@ -338,5 +318,17 @@ public class TestUtils {
         modelMaps.add(modelMap);
         objs.setModels(modelMaps);
         return objs;
+    }
+
+    public static Path newTempFolder() {
+        final Path tempDir;
+        try {
+            tempDir = Files.createTempDirectory("test");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        tempDir.toFile().deleteOnExit();
+
+        return tempDir;
     }
 }
