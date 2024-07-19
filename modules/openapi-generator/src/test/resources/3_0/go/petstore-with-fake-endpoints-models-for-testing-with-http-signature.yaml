@@ -1386,11 +1386,18 @@ components:
       type: object
       required:
         - bar
+        - name
       properties:
+        name:
+          $ref: '#/components/schemas/Name'
         bar:
           $ref: '#/components/schemas/Bar'
         map:
           $ref: '#/components/schemas/MapWithDateTime'
+    Name:
+      enum: [default-name]
+      default: default-name
+      x-enum-as-string: true
     Bar:
       type: string
       default: bar
