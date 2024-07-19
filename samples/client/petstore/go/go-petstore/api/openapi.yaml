@@ -1132,8 +1132,9 @@ components:
           format: int64
           type: integer
         name:
+          enum: [default-name]
           default: default-name
-          type: string
+          x-enum-as-string: true
       required:
       - name
       type: object
