@@ -168,18 +168,18 @@ func (o *{{classname}}) Set{{name}}(v {{vendorExtensions.x-go-base-type}}) {
 {{/isNullable}}
 }
 
+{{#useDefaultValuesForRequiredVars}}
 {{^isReadOnly}}
 {{#defaultValue}}
-{{#initRequiredVars}}
-func (o *{{classname}}) GetDefault{{baseName}}() interface{}  {
-	var {{baseName}} {{{dataType}}} = {{{defaultValue}}}
-	o.{{name}} = {{baseName}}
-	return {{baseName}}
+// GetDefault{{baseName}} function assigns the default value {{defaultValue}} to the {{name}} field
+// of the {{classname}} struct and returns the {{{defaultValue}}}.
+func (o *{{classname}}) GetDefault{{baseName}}() interface{}  { 
+	o.{{name}} = {{{defaultValue}}}
+	return {{{defaultValue}}}
 }
-{{/initRequiredVars}}
 {{/defaultValue}}
 {{/isReadOnly}}
-
+{{/useDefaultValuesForRequiredVars}}
 {{/required}}
 {{^required}}
 // Get{{name}} returns the {{name}} field value if set, zero value otherwise{{#isNullable}} (both if not set or set to explicit null){{/isNullable}}.
@@ -330,15 +330,15 @@ func (o {{classname}}) ToMap() (map[string]interface{}, error) {
 	{{! if argument is not nullable, don't set it if it is nil}}
 	{{^isNullable}}
 	{{#required}}
+	{{#useDefaultValuesForRequiredVars}}
 	{{^isReadOnly}}
 	{{#defaultValue}}
-	{{#initRequiredVars}}
 	if _, exists := toSerialize["{{{baseName}}}"]; !exists {
 		toSerialize["{{{baseName}}}"] = o.GetDefault{{baseName}}()
 	}
-	{{/initRequiredVars}}
 	{{/defaultValue}}
 	{{/isReadOnly}}
+	{{/useDefaultValuesForRequiredVars}}
 	toSerialize["{{{baseName}}}"] = o.{{name}}
 	{{/required}}
 	{{^required}}
@@ -377,41 +377,46 @@ func (o *{{{classname}}}) UnmarshalJSON(data []byte) (err error) {
 {{/requiredVars}}
 	}
 
-	defaultValueFuncMap := map[string]func() interface{} {
 {{#requiredVars}}
+{{#useDefaultValuesForRequiredVars}}
+	defaultValueFuncMap := map[string]func() interface{} {
 {{^isReadOnly}}
 {{#defaultValue}}
-{{#initRequiredVars}}
 		"{{baseName}}": o.GetDefault{{baseName}},
-{{/initRequiredVars}}
 {{/defaultValue}}
 {{/isReadOnly}}
-{{/requiredVars}}
 	}
-
-	allProperties := make(map[string]interface{})
 	var defaultValueApplied bool
+{{/useDefaultValuesForRequiredVars}}
+{{/requiredVars}}
+	allProperties := make(map[string]interface{})
 	err = json.Unmarshal(data, &allProperties)
+
 	if err != nil {
 		return err;
 	}
+
 	for _, requiredProperty := range(requiredProperties){
+		{{#useDefaultValuesForRequiredVars}}
 		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
 			if _, ok := defaultValueFuncMap[requiredProperty]; ok {
 				allProperties[requiredProperty] = defaultValueFuncMap[requiredProperty]()
 				defaultValueApplied = true
 			}
 		}
+		{{/useDefaultValuesForRequiredVars}}
 		if value, exists := allProperties[requiredProperty]; !exists || value == ""{
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
 	}
+	{{#useDefaultValuesForRequiredVars}}
 	if defaultValueApplied{
 		data, err = json.Marshal(allProperties)
 		if err != nil{
 			return err
 		}
 	}
+	{{/useDefaultValuesForRequiredVars}}
 {{/hasRequired}}
 {{#isAdditionalPropertiesTrue}}
 {{#parent}}

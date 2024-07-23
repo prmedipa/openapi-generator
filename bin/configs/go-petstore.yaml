@@ -15,7 +15,7 @@ additionalProperties:
   packageName: petstore
   disallowAdditionalPropertiesIfNotPresent: false
   generateInterfaces: true
-  intiRequiredVars: true
+  useDefaultValuesForRequiredVars: true
 enumNameMappings:
   delivered: SHIPPED
 
